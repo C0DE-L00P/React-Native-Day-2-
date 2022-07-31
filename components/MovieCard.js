@@ -21,14 +21,16 @@ export default function MovieCard({
           padding: 2,
           width: cardWidth,
           backgroundColor: "white",
-          elevation: 16,
           flexDirection: "column",
           margin: 8,
           alignItems: 'center',
           justifyContent: 'center',
           elevation: 8,
           zIndex: 2,
-          shadowColor: 'black',
+          shadowColor: "grey",
+          shadowOffset: { width: 1, height: 1 },
+          shadowOpacity: .3,
+          shadowRadius: 16,
         //   transform: [{translateY}]
         }}
       >

@@ -1,14 +1,31 @@
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View, Animated } from "react-native";
+import {
+  FlatList,
+  Text,
+  View,
+  Animated,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import axios from "axios";
 import MovieCard from "../components/MovieCard";
+import { SharedElement } from "react-navigation-shared-element";
+
 
 export default function HomePage({ navigation }) {
+  
+const [dimensions, setDimensions] = useState(Dimensions.get('window'))
+Dimensions.addEventListener("change", () => setDimensions(Dimensions.get('window')));
+
   const [movies, setMovies] = useState([]);
 
   const ITEM_SIZE = 200;
   const SPACE_ITEM_SIZE = (400 - ITEM_SIZE) / 2;
   const scrollX = React.useRef(new Animated.Value(0)).current;
+  const height = dimensions.height;
+  const width = dimensions.width
+  
 
   useEffect(() => {
     axios
@@ -19,28 +36,49 @@ export default function HomePage({ navigation }) {
       .catch((err) => console.log(err));
   }, []);
 
-  const GoToMovie = (movieId) => navigation.navigate("detail", { movieId: movieId });
+  const GoToMovie = (movieId) =>
+    navigation.navigate("detail", { movieId: movieId, dimensions: dimensions});
+
+  const styles = StyleSheet.create({
+    bottomSheet: {
+      backgroundColor: "white",
+      position: "absolute",
+      height: height,
+      width: width,
+      borderTopEndRadius: 16,
+      borderTopStartRadius: 16,
+      transform: [{ translateY: height/2 }],
+    },
+  });
 
   return (
-    <FlatList
-      data={movies}
-      style={{marginTop: 16}}
-      columnWrapperStyle={{ flex: 1, justifyContent: "space-around" }}
-      numColumns={2}
-      centerContent
-      keyExtractor={(item) => item.id}
-      renderItem={({ item: movie }) => (
-        <MovieCard
-        movie={movie}
-          GoToMovie={GoToMovie}
-          cardWidth={ITEM_SIZE}
-          title={movie.title}
-          rating={movie.vote_average}
-          imgUrl={movie.poster_path}
-          movieId={movie.id}
-          key={movie.id}
-        />
-      )}
-    />
+    <View style={{flex:1}}>
+      <FlatList
+        data={movies}
+        style={{ paddingVertical: 16, flex: 1 }}
+        columnWrapperStyle={{ justifyContent: "space-around", flexGrow:1  }}
+        numColumns={2}
+        centerContent
+        keyExtractor={(item) => item.id}
+        renderItem={({ item: movie }) => (
+          <MovieCard
+            movie={movie}
+            GoToMovie={GoToMovie}
+            cardWidth={ITEM_SIZE}
+            title={movie.title}
+            rating={movie.vote_average}
+            imgUrl={movie.poster_path}
+            movieId={movie.id}
+            key={movie.id}
+          />
+        )}
+      />
+
+      {/* Bottom Sheet */}
+
+      <SharedElement id="bottomSheet">
+        <ScrollView style={styles.bottomSheet}></ScrollView>
+      </SharedElement>
+    </View>
   );
 }
